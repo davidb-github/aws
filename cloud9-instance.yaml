@@ -1,0 +1,35 @@
+Vpc:
+  CidrBlock: 10.0.0.0/16
+  CidrBlockAssociationSet:
+  - AssociationId: vpc-cidr-assoc-018bffef73e5a5d4a
+    CidrBlock: 10.0.0.0/16
+    CidrBlockState:
+      State: associated
+  DhcpOptionsId: dopt-912d96fa
+  InstanceTenancy: default
+  Ipv6CidrBlockAssociationSet: []
+  IsDefault: false
+  OwnerId: '554309730032'
+  State: pending
+  VpcId: vpc-0260404adc24e129f
+
+
+  Subnet:
+  AssignIpv6AddressOnCreation: false
+  AvailabilityZone: us-east-2a
+  AvailabilityZoneId: use2-az1
+  AvailableIpAddressCount: 251
+  CidrBlock: 10.0.1.0/24
+  DefaultForAz: false
+  Ipv6CidrBlockAssociationSet: []
+  MapPublicIpOnLaunch: false
+  OwnerId: '554309730032'
+  State: available
+  SubnetArn: arn:aws:ec2:us-east-2:554309730032:subnet/subnet-0c215203ff012a2f4
+  SubnetId: subnet-0c215203ff012a2f4
+  VpcId: vpc-0260404adc24e129f
+
+
+aws cloud9 create-environment-ec2 --name demo-1 --description "My demonstration development environment." --instance-type t2.micro --subnet-id subnet-0c215203ff012a2f4 --automatic-stop-time-minutes 60 --owner-arn arn:aws:iam::554309730032:user/davidb-cloud9
+
+environmentId: 45c5e77172d3495cb4381e188d4cff16
