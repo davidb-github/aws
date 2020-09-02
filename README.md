@@ -8,7 +8,7 @@ For the step by step instructions for completing this workshop please go to http
 
 ## Workshop notes below this line since the workshop contains errors and omissions.  
 
-Workshop notes:
+Workshop notes:  
 https://554309730032.signin.aws.amazon.com/console
 
 I used custom tags for all deployed resources.  
@@ -18,7 +18,7 @@ I used custom tags for all deployed resources.
 docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]
 
 
-### docker tag has to be manually built as the repo name in the walkthough and the actual repo commands does not match. 
+### docker tag has to be manually built as the repo name in the walkthough and the actual repo commands do not match. 
 docker tag aws-modernization-devsecops_unicornstore:latest 554309730032.dkr.ecr.us-west-2.amazonaws.com/modernization-devsecops-workshop:latest
 
 ### query the aws ecr describe-repositories to validate repo name matches command string below.
