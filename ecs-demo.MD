@@ -188,22 +188,13 @@ The steps below create an internet gateway and route table. And then attach the 
 
 
 
-demo1-alb-sg
-
-
 // next steps: 
+- helloWorld sercive desired instances is currently 0 to save $.
 - add in the steps to create alb
 - link up security group to alb
 - firm up steps around the 
 
-source only allows security group for the demo1-alb-sg
 
-
-
-
-Task->Service - 
- 
-   ensure the ECS service has a SG that is linked up to the ALB
 
 
 Test URL
