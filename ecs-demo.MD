@@ -177,7 +177,7 @@ The steps below create an internet gateway and route table. And then attach the 
 5. Adjust Service Security Group
 - Cluster:Demo1-cluster  
 - Service: helloWorld-svc -> Details Tab ->Network Access  
-- Security groups: Check the SG details. This may be a default SG. Either update the default SG or create a new one to limit the source address to the source only allows security group for the security group for the application load balancer so All TCP 0-65535 source demo1-alb-sg. 
+- Security groups: Check the SG details. This may be a default SG. Either update the default SG or create a new one to limit the source address to only the group for the application load balancer so All TCP 0-65535 source demo1-alb-sg. 
 - It would also be a good idea to udpate the security group inbound rule attached to the application load balancer so that it restricts trafic to source addresses used in your testing. It defaults to 0.0.0.0/0.
 
 
