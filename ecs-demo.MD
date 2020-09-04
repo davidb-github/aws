@@ -137,14 +137,22 @@ The steps below create an internet gateway and route table. And then attach the 
  9. Associate demo1-private-rt to both private subnets
  
  ## Section 2 Continued: Create NAT Gateway.
- 1. 
+ The NGW will allow resources in our private subnets to communicate out to the Internet. This is needed for images that have dependencies.
+ 1. Create new NAT gateway
+  - specify the public subnet demo1-public-1
+  - Create new elastic IP:
+  - Select Create
+2. Update demo1-private-rt route to use new NGW
+  - Edit routes on demo1-private-rt
+  - Add 0.0.0.0/0 route with a target of the new NGW
+  - Save new route  
 
  ## Section 3: Create ECR cluster, task and service.
  1. Create new cluster
     - name: demo1-cluster
     - create new VPV: true w/defaults
     - CloudWatch Container Insights: true  
-2. Create a new cluster task definition.
+2. Create a new cluster Task definition.
     - type: Fargate
     - name: helloWorld
     - task Role: false
@@ -164,15 +172,44 @@ The steps below create an internet gateway and route table. And then attach the 
     - service-name: helloWorld-svc
     - number of tasks: 2
     - 
+4. Create Application Load Balancer
+- 
+5. Adjust Service Security Group
+- Cluster:Demo1-cluster  
+- Service: helloWorld-svc -> Details Tab ->Network Access  
+- Security groups: Check the SG details. This may be a default SG. Either update the default SG or create a new one to limit the source address to the source only allows security group for the security group for the application load balancer so All TCP 0-65535 source demo1-alb-sg. 
+- It would also be a good idea to udpate the security group inbound rule attached to the application load balancer so that it restricts trafic to source addresses used in your testing. It defaults to 0.0.0.0/0.
+
+
+
+4. Create Application Load Balancer
+- 
+
+
+
+
+demo1-alb-sg
+
+
 // next steps: 
 - add in the steps to create alb
 - link up security group to alb
 - firm up steps around the 
 
+source only allows security group for the demo1-alb-sg
 
 
+
+
+Task->Service - 
  
-   
+   ensure the ECS service has a SG that is linked up to the ALB
+
+
+Test URL
+http://demo1-alb-1606818763.us-east-2.elb.amazonaws.com
+
+
 
 
 
