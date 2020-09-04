@@ -120,7 +120,7 @@ The steps below create an internet gateway and route table. And then attach the 
 
 3. Create Internet Gateway
     - name: demo1-igw  
-4. Attach demp1-igw internet gateway to VPC
+4. Attach demo1-igw internet gateway to VPC
  ```
  aws ec2 attach-internet-gateway --vpc-id "vpc-05d7944354db26cdb" --internet-gateway-id "igw-0065ad75ad26ed361" --region us-east-2  
  ```
