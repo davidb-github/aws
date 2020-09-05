@@ -145,7 +145,26 @@ The steps below create an internet gateway and route table. And then attach the 
 2. Update demo1-private-rt route to use new NGW
   - Edit routes on demo1-private-rt
   - Add 0.0.0.0/0 route with a target of the new NGW
-  - Save new route  
+  - Save new route 
+
+  ## Section 2 Continued: Create Application Load Balancer
+  1. Create Application Load Balancer
+- Create type: Application Load Balancer 
+- name: demo1-alb
+- IP address type: IPv4
+- load balancer protocal/port: HTTP/80
+- Assign Availability Zones settings.
+- VPC: demo1-vpc
+- AZ: us-east-2a & us-east-2b
+- subnets: demo1-public-1 & demo1-public-2  
+2. Next Configure Security Settings.  
+- Create a new security group: demo1-alb-sg
+- configure routing by creating target group
+- name: demo1-alb-tg
+- target type: IP
+- protocol/port: HTTP/80
+- health check: See docker file /health in our case.
+- No need to specify static IP for targets. ECS will dynamically IP the containers and register then as targets. 
 
  ## Section 3: Create ECR cluster, task and service.
  1. Create new cluster
@@ -171,9 +190,19 @@ The steps below create an internet gateway and route table. And then attach the 
     - revision: 1
     - service-name: helloWorld-svc
     - number of tasks: 2
-    - 
-4. Create Application Load Balancer
+    - Accept min/max % deployment type defaults
+    - Select demo1-vpc by ID
+    - Select private subnets so demo1-private-1 & demo1-private-1
+    - Select security group.
+      - We want only traffic sourced from our Application Load Balancer.
+  - Health check grace period: 15 seconds
+
+
+
 - 
+
+
+
 5. Adjust Service Security Group
 - Cluster:Demo1-cluster  
 - Service: helloWorld-svc -> Details Tab ->Network Access  
