@@ -137,15 +137,16 @@ The steps below create an internet gateway and route table. And then attach the 
  9. Associate demo1-private-rt to both private subnets
  
  ## Section 2 Continued: Create NAT Gateway.
- The NGW will allow resources in our private subnets to communicate out to the Internet. This is needed for images that have dependencies.
+ The NGW will allow resources in our private subnets to communicate out to the Internet. This is needed for images that need to download dependencies before running.
  1. Create new NAT gateway
   - specify the public subnet demo1-public-1
   - Create new elastic IP:
-  - Select Create
+  - Select Create NAT Gateway
 2. Update demo1-private-rt route to use new NGW
   - Edit routes on demo1-private-rt
   - Add 0.0.0.0/0 route with a target of the new NGW
-  - Save new route 
+  - Save new route
+
 
   ## Section 2 Continued: Create Application Load Balancer
   1. Create Application Load Balancer
@@ -159,17 +160,25 @@ The steps below create an internet gateway and route table. And then attach the 
 - subnets: demo1-public-1 & demo1-public-2  
 2. Next Configure Security Settings.  
 - Create a new security group: demo1-alb-sg
+  - Type: HTTP
+  - Protocol: TCP
+  - Port Range: 80
+  - Source: custom - 0.0.0.0/0 is world wide. It's best to restrict traffic to a test range of IPs until all security groups behind the ALB are in place.
 - configure routing by creating target group
-- name: demo1-alb-tg
-- target type: IP
-- protocol/port: HTTP/80
-- health check: See docker file /health in our case.
-- No need to specify static IP for targets. ECS will dynamically IP the containers and register then as targets. 
+- Next: Configure Routing
+  - name: demo1-alb-tg
+  - target type: IP - ECS allocates IPs to our defined tasks.
+  - protocol/port: HTTP/80
+  - health check: See docker file /health in our case.
+  - Next Register Targets
+    - No need to specify static IP for targets. ECS will dynamically IP the containers and register then as targets.
+  - Next Review.
+  - Click Create
 
  ## Section 3: Create ECR cluster, task and service.
  1. Create new cluster
     - name: demo1-cluster
-    - create new VPV: true w/defaults
+    - create new VPC: true w/defaults
     - CloudWatch Container Insights: true  
 2. Create a new cluster Task definition.
     - type: Fargate
@@ -183,45 +192,53 @@ The steps below create an internet gateway and route table. And then attach the 
 2. Add Container continued
     - The container name is the URI of the image created in section 1 and can be found in the ECR repo.
     - container name: helloWorld
-    - Image: 554309730032.dkr.ecr.us-east-2.amazonaws.com/demo1:latest
-    - Click create
+    - Image: 554309730032.dkr.ecr.us-east-2.amazonaws.com/demo1:latest (grab the Image URI from ECR)
+    - Port mappings: 3000tcp (determined from Dockerfile)
+    - Click Add
+    - Click Create
 3. Create service
+    - Launch Type: FARGATE
     - name: helloWorld
-    - revision: 1
+    - revision: Usually the latest - Depends on iteration of task definition.
+    - Cluster: demo1-cluster
     - service-name: helloWorld-svc
     - number of tasks: 2
     - Accept min/max % deployment type defaults
+    - Click Next Step
     - Select demo1-vpc by ID
     - Select private subnets so demo1-private-1 & demo1-private-1
     - Select security group.
       - We want only traffic sourced from our Application Load Balancer.
-  - Health check grace period: 15 seconds
-
-
-
-- 
-
-
-
-5. Adjust Service Security Group
+      - Select demo1-alb
+    - Container name: port helloWorld:3000:3000
+    - Select Add to Load Balancer
+    - Container to load balance
+      - Production Listerner Port: 80:HTTP
+      - Target group name: demo1-alb-tg
+      - Target group protocol: HTTP
+      - This populates the pattern and health checks
+    - Enable service discovery integration: Unchecked
+    - Next Step
+    - Set Auto Scaling (Optional): Accept default value of - Do not adjust service's desired count.
+    - Next Step
+    - Review Screen: Create Service
+    - View Service
+      - Ensure Desired Tasks and Running Tasks indicate 2 which is the number of task defined when creating the service.
+4. Adjust Service Security Group
 - Cluster:Demo1-cluster  
 - Service: helloWorld-svc -> Details Tab ->Network Access  
-- Security groups: Check the SG details. This may be a default SG. Either update the default SG or create a new one to limit the source address to only the group for the application load balancer. Example - All TCP 0-65535 source demo1-alb-sg.  
+- Security groups: Check the SG details. This may be a default SG. Either update the default SG or create a new one to limit the source address to only the group of the application load balancer. Example - All TCP 0-65535 source demo1-alb-sg.  
 - It would also be a good idea to udpate the security group inbound rule attached to the application load balancer so that it restricts trafic to source addresses used in your testing. It defaults to 0.0.0.0/0.
 
+## Section 4: Build CI/CD Pipeline to automate deployment
 
 
-4. Create Application Load Balancer
-- 
 
 
 
 
 // next steps: 
-- helloWorld sercive desired instances is currently 0 to save $.
-- add in the steps to create alb
-- link up security group to alb
-- firm up steps around the 
+- Reduce desired from 2 to 0 to save $
 
 
 
@@ -240,30 +257,6 @@ attach route table to the public subnet
 
 
 
-```{
-  "Version": "2008-10-17",
-  "Statement": [
-    {
-      "Sid": "AllowPushPull",
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": [
-          "arn:aws:iam::554309730032:user/admin-cli",
-          "arn:aws:iam::554309730032:user/Administrator"
-        ]
-      },
-      "Action": [
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:BatchGetImage",
-        "ecr:CompleteLayerUpload",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:InitiateLayerUpload",
-        "ecr:PutImage",
-        "ecr:UploadLayerPart"
-      ]
-    }
-  ]
-} 
 
 
 
@@ -281,19 +274,5 @@ attach route table to the public subnet
 1. fork repo so codepipeline can be wired up.
 
 
-## Create ECS Cluster
-
-
-
-
-
-
-
-## Codepipeline
-1. Create new pipeline
-
-
-
-##### Reference:  
 - https://github.com/mjzone/cicd-container  
 - 
